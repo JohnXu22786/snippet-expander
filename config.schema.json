@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Steno plugin config",
+  "type": "object",
+  "properties": {
+    "libraries": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "片段库文件路径列表，顺序即优先级（先者优先）。支持 ~ 与 ${VAR}。"
+    },
+    "defaultLibrary": {
+      "type": "string",
+      "description": "steno.save 默认写入的库名（须存在于 libraries 中）。"
+    },
+    "maxDepth": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 8,
+      "description": "递归展开最大嵌套深度。"
+    },
+    "maxExpansions": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 200,
+      "description": "单次展开允许的替换总次数上限。"
+    },
+    "skipCode": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否跳过代码区域（围栏/行内）中的 #tag。"
+    },
+    "keepUnknown": {
+      "type": "boolean",
+      "default": true,
+      "description": "未提供值且无默认值的 {{变量}} 是否保留原文。"
+    }
+  }
+}

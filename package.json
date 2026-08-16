@@ -1,0 +1,56 @@
+{
+  "name": "dsh-steno",
+  "version": "1.0.0",
+  "description": "Steno — inline shorthand expansion plugin for dsh. Type #tag in a message and it is replaced with the configured text before sending.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "dsh-steno": "./bin/steno.mjs"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "libs",
+    "skills",
+    "scripts",
+    "plugin.json",
+    "config.schema.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "tsc -p tsconfig.json",
+    "pretest": "npm run build",
+    "test": "node --test",
+    "demo": "npm run build && node scripts/demo.mjs",
+    "cli": "node dist/cli.js"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "keywords": [
+    "dsh",
+    "plugin",
+    "shorthand",
+    "macro",
+    "snippet",
+    "prompt-engineering"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.7.0"
+  }
+}

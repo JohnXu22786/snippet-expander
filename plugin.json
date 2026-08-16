@@ -1,0 +1,33 @@
+{
+  "id": "steno",
+  "title": "Steno — 消息内联短标签展开",
+  "version": "1.0.0",
+  "description": "输入 #tag 即可在发送前自动替换为片段库中配置的文本；支持多片段库、别名、{{变量}} 占位符、递归组合与循环/深度防护。",
+  "apiVersion": "dsh/plugin@1",
+  "runtime": {
+    "kind": "node",
+    "minNode": "22.18",
+    "entry": "dist/index.js",
+    "load": "esm",
+    "factory": "createPlugin",
+    "hasDefaultExport": true
+  },
+  "hooks": {
+    "message.beforeSend": {
+      "required": false,
+      "mutates": "message",
+      "description": "用户消息发送给模型之前调用；将消息中的 #tag 展开为片段正文。"
+    }
+  },
+  "tools": [
+    "steno.list",
+    "steno.search",
+    "steno.expand",
+    "steno.save",
+    "steno.remove"
+  ],
+  "skills": [
+    "skills/steno.md"
+  ],
+  "configSchema": "config.schema.json"
+}

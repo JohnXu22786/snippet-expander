@@ -1,0 +1,42 @@
+# Steno 示例片段库
+# 复制到 ~/.dsh/steno/ 或项目 .dsh/steno/ 下即可使用；也可直接修改本文件。
+name: core
+description: 内置示例库，可自由修改或删除
+entries:
+  - tag: focus
+    aliases: [careful]
+    description: 严谨模式：逐步推理、输出前自查、存疑即问
+    body: |
+      请以严谨模式处理：先梳理任务目标，再逐步推理；
+      得出结论前自行检查一遍，发现矛盾或不确定之处要明确提问，不要臆测。
+  - tag: git-status
+    aliases: [gs]
+    description: 先查看仓库状态再作答
+    body: |
+      回答之前，请先查看当前仓库状态：git status、git diff 与最近的提交记录，
+      以实际代码为准，不要凭记忆作答。
+  - tag: conventional-commit
+    aliases: [cc]
+    description: 按约定式提交规范生成提交信息
+    body: |
+      请按约定式提交（Conventional Commits）格式生成提交信息：
+      {{type:feat|fix|refactor|docs|chore}}({{scope:可选作用域}}): {{subject}}
+      正文说明动机与影响，如有破坏性变更请附 BREAKING CHANGE 说明。
+  - tag: review-lens
+    aliases: [review]
+    description: 深度代码审查清单（内部引用 #focus）
+    body: |
+      #focus
+      请从以下角度审查这段代码：
+      1. 正确性：边界条件、错误路径、并发与时序问题；
+      2. 可维护性：命名、结构、重复代码、注释是否与代码同步；
+      3. 性能与安全：复杂度、输入校验、敏感数据处理。
+      逐条给出结论与具体修改建议。
+  - tag: meeting-note
+    aliases: [mn]
+    description: 会议纪要模板（{{topic}} 为主题占位符）
+    body: |
+      ## 会议纪要：{{topic:本周例会}}
+      - 结论：
+      - 待办（负责人 / 期限）：
+      - 风险与阻塞：
