@@ -213,6 +213,10 @@ const out = await plugin.hooks['message.beforeSend']({
 
 `plugin.json` 声明：`apiVersion: dsh/plugin@1`、`runtime.node`（`entry: dist/index.js`、`factory: createPlugin`、esm 默认导出）、`hooks`、`tools`、`skills`、`configSchema`。宿主可据此做能力发现与校验。
 
+### 6. dsh bundle（Cordis 接入）
+
+包还声明了 `dsh.bundle`（`package.json` → `cordis.patch.yml`），因此 `dsh plugin add github:JohnXu22786/snippet-expander` 以 Cordis 插件方式安装：`dist/index.js` 额外导出 `name`（`dsh-steno`）、`inject = ['tools']` 与 `apply(ctx, config)`。`apply` 通过 `createPlugin()` 装载插件，把 5 个工具注册为 dsh ToolDefinition，并在 harness 发出 `message.beforeSend` 事件时挂上展开钩子；卸载（热重载）时回收全部注册。插件行的 `config` 即 [配置](#配置) 一节中的 `StenoConfig`。
+
 ## CLI
 
 ```bash
@@ -232,8 +236,8 @@ CLI 与插件共享同一套片段库与展开逻辑，可独立用于调试。
 
 ```bash
 npm run build    # 编译 TypeScript 到 dist/
-npm test         # 构建 + node:test 全量测试（103 个用例）
-npm run demo     # 模拟宿主加载插件并跑通钩子与工具
+npm test         # 构建 + node:test 全量测试
+npm run demo     # 模拟宿主加载插件、演练 hooks 与工具
 ```
 
 源码结构：

@@ -213,6 +213,10 @@ The host registers the following tools as LLM-callable functions (each tool has 
 
 `plugin.json` declares: `apiVersion: dsh/plugin@1`, `runtime.node` (`entry: dist/index.js`, `factory: createPlugin`, ESM default export), `hooks`, `tools`, `skills`, `configSchema`. Hosts can use it for capability discovery and validation.
 
+### 6. dsh Bundle (Cordis entry)
+
+The package also declares `dsh.bundle` (`package.json` → `cordis.patch.yml`), so `dsh plugin add github:JohnXu22786/snippet-expander` installs it as a Cordis plugin: `dist/index.js` additionally exports `name` (`dsh-steno`), `inject = ['tools']` and `apply(ctx, config)`. `apply` loads the plugin through `createPlugin()`, registers the 5 tools as dsh ToolDefinitions, and attaches the `message.beforeSend` hook when the harness emits that event; unload (hot reload) disposes all registrations. The row `config` is the same `StenoConfig` documented in [Configuration](#configuration).
+
 ## CLI
 
 ```bash
@@ -232,7 +236,7 @@ The CLI shares the same snippet libraries and expansion logic as the plugin and 
 
 ```bash
 npm run build    # compile TypeScript to dist/
-npm test         # build + full node:test suite (103 test cases)
+npm test         # build + full node:test suite
 npm run demo     # simulate a host loading the plugin and exercise hooks and tools
 ```
 
