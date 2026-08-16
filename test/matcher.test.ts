@@ -121,3 +121,23 @@ test('matcher: CRLF line endings keep fence protection', () => {
   const text = '```\r\n#inside\r\n```\r\nafter #outside';
   assert.deepEqual(tags(text), ['outside']);
 });
+
+test('matcher: escaped tag does not leak adjacent normal tags', () => {
+  const r = scan('\\#focus and #real');
+  assert.deepEqual(r.tags.map((t) => t.name), ['real']);
+  assert.equal(r.escapes.length, 1);
+  assert.equal(r.escapes[0]!.name, 'focus');
+});
+
+test('matcher: punctuation-adjacent tags match, doubled hashes do not', () => {
+  assert.deepEqual(tags('see (#focus) now'), ['focus']);
+  assert.deepEqual(tags('#tag#other'), ['tag']);
+  assert.deepEqual(tags('一，#tag。'), ['tag']);
+});
+
+test('matcher: escaped tag inside a placeholder region yields neither tag nor escape', () => {
+  const r = scan('{{a:\\#b}}');
+  assert.equal(r.spans.length, 1);
+  assert.deepEqual(r.tags, []);
+  assert.deepEqual(r.escapes, []);
+});

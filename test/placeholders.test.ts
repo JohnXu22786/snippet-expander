@@ -72,3 +72,17 @@ test('placeholders: escaped placeholder still renders literally with variables p
   assert.equal(r.text, '{{x:1}}');
   assert.deepEqual(r.unresolved, []);
 });
+
+test('placeholders: repeated names resolve defaults independently', () => {
+  const r = resolvePlaceholders('{{a:1}} {{a:2}}', {});
+  assert.equal(r.text, '1 2');
+  assert.deepEqual(r.unresolved, []);
+});
+
+test('placeholders: masked positions stay verbatim and are not unresolved', () => {
+  const mask = new Array('`{{x:1}}`'.length).fill(false);
+  mask[1] = true; // 只遮挡起始花括号即可按整段保留
+  const r = resolvePlaceholders('`{{x:1}}`', {}, { masked: mask });
+  assert.equal(r.text, '`{{x:1}}`');
+  assert.deepEqual(r.unresolved, []);
+});
