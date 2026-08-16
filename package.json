@@ -22,9 +22,15 @@
     "scripts",
     "plugin.json",
     "config.schema.json",
+    "cordis.patch.yml",
     "README.md",
     "LICENSE"
   ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
   "scripts": {
     "prepare": "npm run build",
     "build": "tsc -p tsconfig.json",
@@ -38,6 +44,7 @@
   },
   "keywords": [
     "dsh",
+    "dsh-plugin",
     "plugin",
     "shorthand",
     "macro",
