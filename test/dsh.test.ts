@@ -42,7 +42,11 @@ test('bundle: apply registers all five tools and the beforeSend hook, then dispo
   };
   try {
     const disposer = apply(ctx, { libraries: [join(dir, 'demo.yaml')] });
-    await new Promise((r) => setTimeout(r, 60));
+    // createPlugin() 装载是异步的；轮询等待注册完成（避免固定延时在并行跑测试时抖动）
+    const deadline = Date.now() + 3000;
+    while (registered.length < 5 && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 15));
+    }
     assert.deepEqual(registered.sort(), ['steno.expand', 'steno.list', 'steno.remove', 'steno.save', 'steno.search']);
     assert.deepEqual(hooks, ['message.beforeSend']);
     assert.ok(logs.some((l) => l.includes('就绪')));
