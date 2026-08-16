@@ -264,9 +264,11 @@ async function main(): Promise<void> {
         body = args.positionals.slice(1).join(' ');
       }
       if (!body) usageError('add 需要正文');
+      const aliasOpts = optList(args, 'alias');
       const res = await plugin.registry.add(tag, body, {
         library: optStr(args, 'library'),
-        aliases: optList(args, 'alias'),
+        // 未提供 --alias 时传 undefined，避免把已有别名的更新误清空
+        aliases: aliasOpts.length > 0 ? aliasOpts : undefined,
         description: optStr(args, 'description'),
       });
       if (json) printJson(res);
