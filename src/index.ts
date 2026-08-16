@@ -19,7 +19,7 @@
 import { FragmentRegistry } from './store/registry.ts';
 import { ExpansionEngine } from './core/engine.ts';
 import { resolveConfig, type ResolvedConfig, type StenoConfig } from './config.ts';
-import { createMessageHook, type EventHandler } from './plugin/hooks.ts';
+import { createMessageHook, type EventHandler, type MessageContext } from './plugin/hooks.ts';
 import { buildTools, type ToolDef } from './plugin/tools.ts';
 
 export const PLUGIN_ID = 'steno';
@@ -91,6 +91,78 @@ export async function createPlugin(options: PluginOptions = {}): Promise<StenoPl
 }
 
 export default createPlugin;
+
+// ---------------------------------------------------------------------------
+// dsh（Cordis bundle）入口
+//
+// package.json 的 dsh.bundle.patch 指向 cordis.patch.yml，dsh 安装插件行时以
+// Cordis 插件方式加载本模块：导出 name / inject / apply(ctx, rowConfig)。
+// apply 复用 createPlugin()：把 5 个 steno 工具转换为 dsh 的 ToolDefinition
+// 注册到 ctx.tools，并把 message.beforeSend 钩子接到 harness（若发出同名事件）。
+// ---------------------------------------------------------------------------
+
+export const name = 'dsh-steno';
+
+/** 依赖 dsh 提供的工具注册服务（无 tools 时插件不加载）。 */
+export const inject = ['tools'];
+
+export interface DshToolDefinition {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+  output: { schema: Record<string, unknown>; [key: string]: unknown };
+  [key: string]: unknown;
+}
+
+/** dsh 的 Cordis Context 所需字段的松散形态。 */
+export interface DshHarnessContext {
+  tools?: { register(def: DshToolDefinition): unknown };
+  logger?: StenoLogger;
+  on?(name: string, handler: (payload: unknown) => unknown): unknown;
+  effect?(fn: () => void): void;
+}
+
+export function apply(ctx: DshHarnessContext, config: StenoConfig = {}): () => void {
+  const disposers: Array<() => void> = [];
+  const logger = ctx.logger;
+
+  void createPlugin({ config, logger })
+    .then((plugin) => {
+      for (const tool of plugin.tools) {
+        const ret = ctx.tools?.register({
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.inputSchema ?? { type: 'object', properties: {} },
+          output: { schema: { type: 'object', additionalProperties: true } },
+          execute: async (args: Record<string, unknown>): Promise<unknown> =>
+            tool.run((args ?? {}) as Record<string, unknown>),
+        });
+        if (typeof ret === 'function') disposers.push(ret as () => void);
+      }
+      const beforeSend = plugin.hooks['message.beforeSend'];
+      if (beforeSend && typeof ctx.on === 'function') {
+        const off = ctx.on('message.beforeSend', (payload: unknown) => beforeSend(payload as MessageContext));
+        if (typeof off === 'function') disposers.push(off as () => void);
+      }
+      logger?.info?.(
+        `[steno] ${plugin.name} v${plugin.version} 就绪：${plugin.tools.length} 个工具 + message.beforeSend 钩子`,
+      );
+    })
+    .catch((err: unknown) => {
+      logger?.error?.(
+        `[steno] 初始化失败：${err instanceof Error ? err.message : String(err)}`,
+      );
+    });
+
+  if (typeof ctx.effect === 'function') {
+    ctx.effect(() => {
+      for (const dispose of disposers) dispose();
+    });
+  }
+  return () => {
+    for (const dispose of disposers) dispose();
+  };
+}
 
 export type { EventHandler, MessageContext, HookOutput } from './plugin/hooks.ts';
 export type { ToolDef } from './plugin/tools.ts';
