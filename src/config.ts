@@ -56,7 +56,7 @@ export function expandPath(p: string): string {
   if (out === '~') {
     out = homedir();
   } else if (out.startsWith('~/') || out.startsWith('~\\')) {
-    out = join(homedir(), out.slice(1));
+    out = join(homedir(), out.slice(1).replace(/\\/g, '/'));
   }
   out = out.replace(
     /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g,
